@@ -271,11 +271,52 @@ end RoblitzEqs;
     end GlandPit;
 
     model Ovaries
+    //parameters
+    
+    parameter Real k_s=0.219 "1/d";    //EQ11
+    parameter Real T_s_FSH=3 "IU/L";
+    parameter Real n_s_FSH=5 "-";
+    parameter Real k_s_cl=1.343 "1/d";
+    parameter Real T_s_P4=1.235 "ng/mL";
+    parameter Real n_s_P4=5 "-";
+    parameter Real k_AF1=3.662 "[PrA1/d]"; //EQ12
+    parameter Real T_AF1_FSH_R=0.608 "IU/L";
+    parameter Real n_AF1_FSH_R=5 "-";
+    parameter Real k_AF2_AF1=1.221 "L/(d*IU)";
+    parameter Real k_AF3_AF2=4.882 "1/d"; //eq13
+    parameter Real SF_LH_R=2.726 "IU/L";
+    parameter Real n_AF3_AF2=3.689 "-";
+    
+    
+    //a
+    
+    //functions 
+    Real s(start=0.417)"-";//EQ11
+    input Real FSH_blood;//INPUT
+    input Real P4;//INPUT
+    Real AF1(start=2.811)"[Foll]";//EQ12
+    input Real FSH_R;//INPUT
+    Real AF2(start=27.64) "[Foll]";//eq13
+    input Real LH_R;//Input
+    
+    
+    
+    
+    equation
+    der(s)=k_s*fHp(FSH_blood,T_s_FSH,n_s_FSH)-k_s_cl*fHp(P4,T_s_P4,n_s_P4)*s; //eq11
+    der(AF1)= k_AF1*fHp(FSH_R,T_AF1_FSH_R,n_AF1_FSH_R)-k_AF2_AF1*FSH_R*AF1; //eq12
+    der(AF2)=k_AF2_AF1*FSH_R*AF1-k_AF3_AF2*((LH_R/SF_LH_R)^(n_AF3_AF2))*s*AF2;//eq13
+    //der(AF3)
+    //der(AF4)
     
     
     
     
     end Ovaries;
+
+
+
+
 
 
 
