@@ -237,24 +237,24 @@ end RoblitzEqs;
         parameter Real n_FSH_GR = 2 "-";
       
         parameter Real k_FSH_Ih = 2.213e+4 "IU/d";
-        parameter Real n_Ih_A = 5 "-";
-        parameter Real n_Ih_B = 2 "-";
-        parameter Real T_Ih_A = 95.81 "IU/mL";
-        parameter Real T_Ih_B = 70 "pg/mL";
+        parameter Real n_IhA = 5 "-";
+        parameter Real n_IhB = 2 "-";
+        parameter Real T_IhA = 95.81 "IU/mL";
+        parameter Real T_IhB = 70 "pg/mL";
         parameter Real b_FSH_rel = 0.057 "1/d";
         parameter Real k_FSH_GR = 0.272 "1/d";
     
-        Real Ih_A(start = 0.637) "IU/mL";
-        Real Ih_Ae(start = 52.43) "IU/mL";
-        Real Ih_B(start = 72.17) "pg/mL";
+        Real IhA(start = 0.637) "IU/mL";
+        Real IhAe(start = 52.43) "IU/mL";
+        Real IhB(start = 72.17) "pg/mL";
         Real FSH_pit(start = 6.928e+4) "IU";
         Real FSH_blood(start = 6.286) "IU/L";
         Real R_FSH(start = 5.141) "IU/L";
         Real FSH_R(start = 1.030) "IU/L";
         Real R_FSH_des(start = 2.330) "IU/L";
-      /*Ih_Ae//define all of thise and within the field of equations_ IhA
-         Ih_B*/
-      Real SynFSH = k_FSH_Ih * fHm(freq,T_FSH_freq,n_FSH_freq) / (1 + (Ih_Ae / T_Ih_A) ^ n_Ih_A + (Ih_B / T_Ih_B) ^ n_Ih_B);
+      /*IhAe//define all of thise and within the field of equations_ IhA
+         IhB*/
+      Real SynFSH = k_FSH_Ih * fHm(freq,T_FSH_freq,n_FSH_freq) / (1 + (IhAe / T_IhA) ^ n_IhA + (IhB / T_IhB) ^ n_IhB);
       Real RelFSH = (b_FSH_rel + k_FSH_GR * fHp((GR + AgoR), T_FSH_GR,n_FSH_GR)) * FSH_pit;
     
     //=============
@@ -263,12 +263,13 @@ end RoblitzEqs;
       der(LH_pit) = SynLH - RelLH;
 //FSH Pitatory gland
       der(FSH_pit) = SynFSH - RelFSH;
-      der(Ih_A);
-      der(Ih_B);
-      der(Ih_Ae);
+      der(IhA);
+      der(IhB);
+      der(IhAe);
     
     
     end GlandPit;
+
 
     model Ovaries
     //parameters
@@ -312,15 +313,38 @@ end RoblitzEqs;
     parameter Real k_Lut4_Lut3=0.610"1/d";
     parameter Real k_Lut4_cl=0.543"1/d";
     //=====E2,P4 and inhibins
+    parameter Real b_E2=51.558"pg/(mL*d)";//eq24
+    parameter Real k_E2_AF2=2.0945"pg/(mL*d*[AF2])";
+    parameter Real k_E2_AF3=9.28"pg/(mL*d*[AF3]*[LH])";
+    parameter Real k_E2_AF4=6960.53"pg/(mL*d*[AF4])";
+    parameter Real k_E2_PrF=0.972"pg/(mL*d*[PrF]*[LH])";
+    parameter Real k_E2_Lut1=1713.71"pg/(mL*d*[Lut1])";
+    parameter Real k_E2_Lut4=8675.14"pg/(mL*d*[Lut4])";
+    parameter Real k_E2_cl=5.235"1/d";
+    parameter Real b_P4=0.934"ng/(mL*d)";//eq25
+    parameter Real k_P4_Lut4=761.64"ng/(mL*d*[Lut4])";
+    parameter Real k_P4_cl=5.13"1/d";
     
+    parameter Real b_IhA=1.445"IU/(mL*d)"; //eq26
+    parameter Real k_IhA_PrF=2.285"IU/(mL*d*[PrF])";
+    parameter Real k_IhA_Sc1=60"pg/(mL*d*[Sc1])";
+    parameter Real k_IhA_Lut1=180 "pg/(mL*d*[Lut1])";
+    parameter Real k_IhA_Lut2=28.211"IU/(mL*d*[Lut2])";
+    parameter Real k_IhA_Lut3=216.85"IU/(mL*d*[Lut3])";
+    parameter Real k_IhA_Lut4=114.25"IU/(mL*d*[Lut4])";
+    parameter Real k_IhA=4.287"1/d";
     
+    parameter Real b_IhB=89.493"pg/(mL*d)";//eq27
+    parameter Real k_IhB_AF2=447.47"pg/(mL*d*[AF2])";
+    parameter Real k_IhB_Sc2=134240.2"pg/(mL*d*[AF3])";
+    parameter Real k_IhB_cl=172.45"1/d";
     
-    
+    parameter Real k_IhAe_cl=0.199"1/d";
     
     //functions 
     Real s(start=0.417)"-";//EQ11
     input Real FSH_blood;//INPUT
-    input Real P4;//INPUT
+    //input Real P4;//INPUT//comment if I keep E2,P4 defined here
     Real AF1(start=2.811)"[Foll]";//EQ12
     input Real FSH_R;//INPUT
     Real AF2(start=27.64) "[Foll]";//eq13
@@ -339,11 +363,12 @@ end RoblitzEqs;
     //=====E2,P4 and inhibins
     
     
-    
-    
-    
-    
-    
+    input Real LH_blood;//eq24
+    Real E2(start=30.94)"pg/mL";
+    Real P4(start=0.688)"ng/mL";//eq25
+    Real IhA(start=0.637)"IU/mL";//eq26
+    Real IhB(start=72.17)"pg/mL";//eq27
+    Real IhAe(start=52.43)"IU/mL";//eq28
     
     equation
     //eq11
@@ -357,7 +382,6 @@ end RoblitzEqs;
     k_AF3_AF3*FSH_R*AF3*(1-AF3/SeFmax)-k_AF4_AF3*((LH_R/SF_LH_R)^(n_AF4_AF3))*s*AF3;
     //eq15
     der(AF4)=k_AF4_AF3*((LH_R/SF_LH_R)^(n_AF4_AF3))*s*AF3+k_AF4_AF4*((LH_R/SF_LH_R)^(n_AF4))*AF4*(1-AF4/SeFmax)-k_PrF_AF4*(LH_R/SF_LH_R)*s*AF4;
-    //==add those parameters from below 
     //eq16
     der(PrF)=k_PrF_AF4*(LH_R/SF_LH_R)*s*AF4-k_PrF_cl*((LH_R/SF_LH_R)^(n_OvF))*s*PrF;
     //eq17
@@ -375,7 +399,30 @@ end RoblitzEqs;
     //eq23
     der(Lut4)=k_Lut4_Lut3*(1+m_Lut_GR*fHp(GR_a,T_Lut_GR,n_Lut_GR))*Lut3-k_Lut4_cl*(1+m_Lut_GR*fHp(GR_a,T_Lut_GR,n_Lut_GR))*Lut4;
     
+    //E2,P4 and inhibins 
+    //eq24
+    der(E2)=b_E2+k_E2_AF2*AF2+k_E2_AF3*LH_blood*AF3+k_E2_AF4*AF4+
+    k_E2_PrF*LH_blood*PrF+k_E2_Lut1*Lut1+k_E2_Lut4*Lut4-k_E2_cl*E2;
+    //eq25
+    der(P4)=b_P4+k_P4_Lut4*Lut4-k_P4_cl*P4;
+    //eq26
+    der(IhA)=b_IhA+k_IhA_PrF*PrF+k_IhA_Sc1*Sc1+k_IhA_Lut1*Lut1+k_IhA_Lut2*Lut2+k_IhA_Lut3*Lut3+k_IhA_Lut4*Lut4-k_IhA*IhA;
+    //eq27
+    der(IhB)=b_IhB+k_IhB_AF2*AF2+k_IhB_Sc2*Sc2-k_IhB_cl*IhB;
+    
+    //eq28
+    der(IhAe)=k_IhA*IhA-k_IhAe_cl*IhAe;
+    
+    
     end Ovaries;
+
+
+
+
+
+
+
+
 
 
 
