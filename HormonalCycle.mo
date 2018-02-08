@@ -272,7 +272,7 @@ end RoblitzEqs;
 
     model Ovaries
     //parameters
-    
+    //development of follicle and corpus luteum
     parameter Real k_s=0.219 "1/d";    //EQ11
     parameter Real T_s_FSH=3 "IU/L";
     parameter Real n_s_FSH=5 "-";
@@ -286,9 +286,36 @@ end RoblitzEqs;
     parameter Real k_AF3_AF2=4.882 "1/d"; //eq13
     parameter Real SF_LH_R=2.726 "IU/L";
     parameter Real n_AF3_AF2=3.689 "-";
+    parameter Real k_AF3_AF3=0.122 "L/(d*IU)";//eq14
+    parameter Real SeFmax=10 "[SeF1]";
+    parameter Real k_AF4_AF3=122.06 "1/d";
+    parameter Real n_AF4_AF3=5"-";//eq15
+    parameter Real k_AF4_AF4=12.206"1/d";
+    parameter Real n_AF4=2"-";
+    parameter Real k_PrF_AF4=332.75"1/d";
+    parameter Real k_PrF_cl=122.06 "1/d";
+    parameter Real n_OvF=6"-";
+    parameter Real k_OvF=7.984"1/d";
+    parameter Real T_OvF_PrF=3"[PrF]";
+    parameter Real n_OvF_PrF=10"-";
+    parameter Real k_OvF_cl=12.206"1/d";
+    parameter Real k_Sc1=1.208"1/d";//eq18
+    parameter Real T_Sc1_OvF=0.02"[OvF]";
+    parameter Real n_Sc1_OvF=10"-";
+    parameter Real k_Sc2_Sc1=1.221"1/d";
+    parameter Real k_Lut1_Sc2=0.958"1/d";//eq19
+    parameter Real k_Lut2_Lut1=0.925"1/d";//eq20
+    parameter Real m_Lut_GR=20"-";
+    parameter Real T_Lut_GR=0.0008"nmol/L";
+    parameter Real n_Lut_GR=5"-";
+    parameter Real k_Lut3_Lut2=0.7567"1/d";
+    parameter Real k_Lut4_Lut3=0.610"1/d";
+    parameter Real k_Lut4_cl=0.543"1/d";
+    //=====E2,P4 and inhibins
     
     
-    //a
+    
+    
     
     //functions 
     Real s(start=0.417)"-";//EQ11
@@ -298,21 +325,65 @@ end RoblitzEqs;
     input Real FSH_R;//INPUT
     Real AF2(start=27.64) "[Foll]";//eq13
     input Real LH_R;//Input
+    Real AF3(start=0.801) "[Foll]";//eq14
+    Real AF4(start=6.345e-5) "[Foll]";//eq15
+    Real PrF(start=0.336)"[Foll]";//eq16
+    Real OvF(start=1.313e-16)"[Foll]";//eq17
+    Real Sc1(start=1.433e-10)"[Foll]";//eq18
+    Real Sc2(start=7.278e-8)"[Foll]";//eq19
+    Real Lut1(start=1.293e-6)"[Foll]";//eq20
+    input Real GR_a;
+    Real Lut2(start=3.093e-5)"[Foll]";//eq21
+    Real Lut3(start=4.853e-4)"[Foll]";//eq22
+    Real Lut4(start=3.103e-3)"[Foll]";//eq23
+    //=====E2,P4 and inhibins
+    
+    
+    
+    
     
     
     
     
     equation
-    der(s)=k_s*fHp(FSH_blood,T_s_FSH,n_s_FSH)-k_s_cl*fHp(P4,T_s_P4,n_s_P4)*s; //eq11
-    der(AF1)= k_AF1*fHp(FSH_R,T_AF1_FSH_R,n_AF1_FSH_R)-k_AF2_AF1*FSH_R*AF1; //eq12
-    der(AF2)=k_AF2_AF1*FSH_R*AF1-k_AF3_AF2*((LH_R/SF_LH_R)^(n_AF3_AF2))*s*AF2;//eq13
-    //der(AF3)
-    //der(AF4)
-    
-    
-    
+    //eq11
+    der(s)=k_s*fHp(FSH_blood,T_s_FSH,n_s_FSH)-k_s_cl*fHp(P4,T_s_P4,n_s_P4)*s; 
+    //eq12
+    der(AF1)= k_AF1*fHp(FSH_R,T_AF1_FSH_R,n_AF1_FSH_R)-k_AF2_AF1*FSH_R*AF1; 
+    //eq13
+    der(AF2)=k_AF2_AF1*FSH_R*AF1-k_AF3_AF2*((LH_R/SF_LH_R)^(n_AF3_AF2))*s*AF2;
+    //eq14
+    der(AF3)=k_AF3_AF2*((LH_R/SF_LH_R)^(n_AF3_AF2))*s*AF2+
+    k_AF3_AF3*FSH_R*AF3*(1-AF3/SeFmax)-k_AF4_AF3*((LH_R/SF_LH_R)^(n_AF4_AF3))*s*AF3;
+    //eq15
+    der(AF4)=k_AF4_AF3*((LH_R/SF_LH_R)^(n_AF4_AF3))*s*AF3+k_AF4_AF4*((LH_R/SF_LH_R)^(n_AF4))*AF4*(1-AF4/SeFmax)-k_PrF_AF4*(LH_R/SF_LH_R)*s*AF4;
+    //==add those parameters from below 
+    //eq16
+    der(PrF)=k_PrF_AF4*(LH_R/SF_LH_R)*s*AF4-k_PrF_cl*((LH_R/SF_LH_R)^(n_OvF))*s*PrF;
+    //eq17
+    der(OvF)=k_OvF*((LH_R/SF_LH_R)^(n_OvF))*s*fHp(PrF,T_OvF_PrF,n_OvF_PrF)-k_OvF_cl*OvF;
+    //eq18
+    der(Sc1)=k_Sc1*fHp(OvF,T_Sc1_OvF,n_Sc1_OvF)-k_Sc2_Sc1*Sc1;
+    //eq19
+    der(Sc2)=k_Sc2_Sc1*Sc1-k_Lut1_Sc2*Sc2;
+    //eq20
+    der(Lut1)=k_Lut1_Sc2*Sc2-k_Lut2_Lut1*(1+m_Lut_GR*fHp(GR_a,T_Lut_GR,n_Lut_GR))*Lut1;
+    //eq21
+    der(Lut2)=k_Lut2_Lut1*(1+m_Lut_GR*fHp(GR_a,T_Lut_GR,n_Lut_GR))*Lut1-k_Lut3_Lut2*(1+m_Lut_GR*fHp(GR_a,T_Lut_GR,n_Lut_GR))*Lut2;
+    //eq22
+    der(Lut3)=k_Lut3_Lut2*(1+m_Lut_GR*fHp(GR_a,T_Lut_GR,n_Lut_GR))*Lut2-k_Lut4_Lut3*(1+m_Lut_GR*fHp(GR_a,T_Lut_GR,n_Lut_GR))*Lut3;
+    //eq23
+    der(Lut4)=k_Lut4_Lut3*(1+m_Lut_GR*fHp(GR_a,T_Lut_GR,n_Lut_GR))*Lut3-k_Lut4_cl*(1+m_Lut_GR*fHp(GR_a,T_Lut_GR,n_Lut_GR))*Lut4;
     
     end Ovaries;
+
+
+
+
+
+
+
+
 
 
 
