@@ -127,7 +127,7 @@ package HormonalCycle
     end fHm;
 
     model Blood
-      //  input Real RelLH;
+    //====== Input and Output ======
       Modelica.Blocks.Interfaces.RealInput RelLH annotation(
         Placement(visible = true, transformation(origin = {-70, 52}, extent = {{-20, -20}, {20, 20}}, rotation = 0), iconTransformation(origin = {-80, 60}, extent = {{-20, -20}, {20, 20}}, rotation = 0)));
       Modelica.Blocks.Interfaces.RealInput RelFSH annotation(
@@ -140,25 +140,21 @@ package HormonalCycle
         Placement(visible = true, transformation(origin = {82, -12}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {90, -30}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
       Modelica.Blocks.Interfaces.RealOutput FSH_R(start = 1.030) "IU/L" annotation(
         Placement(visible = true, transformation(origin = {80, -64}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {90, -88}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-      //Add block C for FSH and input RelFSH
-      //serum LH blood Block B
+    //====== Parameters ======
+      //serum LH
       parameter Real V_blood = 6.589 "L";
       parameter Real k_LH_on = 2.143 "L/(d*IU)";
       parameter Real k_LH_cl = 74.851 "1/d";
-      //Real LH_blood(start = 3.487) "IU/L";
       parameter Real k_LH_recy = 68.949 "1/d";
       parameter Real k_LH_des = 183.36 "1/d";
       Real R_LH(start = 8.157) "IU/L";
-      //Real LH_R(start = 0.332) "IU/L";
       Real R_LH_des(start = 0.882) "IU/L";
       // serum FSH
       parameter Real k_FSH_on = 3.529 "L/(d*IU)";
       parameter Real k_FSH_cl = 114.25 "1/d";
       parameter Real k_FSH_recy = 61.029 "1/d";
       parameter Real k_FSH_des = 138.3 "1/d";
-      //Real FSH_blood(start = 6.286) "IU/L";
       Real R_FSH(start = 5.141) "IU/L";
-      // Real FSH_R(start = 1.030) "IU/L";
       Real R_FSH_des(start = 2.330) "IU/L";
     equation
 //Equations, describing LH in serum and for its receptor's complex
@@ -176,8 +172,9 @@ package HormonalCycle
         Icon(graphics = {Rectangle(origin = {6, 0}, fillColor = {243, 43, 7}, fillPattern = FillPattern.Solid, extent = {{-74, 100}, {74, -100}}), Text(origin = {5, 3}, extent = {{-39, 27}, {39, -27}}, textString = "Blood")}));
     end Blood;
 
+
     model GlandPit
-      //Inputs and outputs
+      //====== Input and Output ======
       Modelica.Blocks.Interfaces.RealInput E2 annotation(
         Placement(visible = true, transformation(origin = {-90, 90}, extent = {{-20, -20}, {20, 20}}, rotation = 0), iconTransformation(origin = {-59, 67}, extent = {{-13, -13}, {13, 13}}, rotation = 0)));
       Modelica.Blocks.Interfaces.RealInput P4 annotation(
@@ -190,58 +187,62 @@ package HormonalCycle
         Placement(visible = true, transformation(origin = {-66, -46}, extent = {{-20, -20}, {20, 20}}, rotation = 0), iconTransformation(origin = {-59, -45}, extent = {{-13, -13}, {13, 13}}, rotation = 0)));
       Modelica.Blocks.Interfaces.RealInput freq annotation(
         Placement(visible = true, transformation(origin = {-74, 58}, extent = {{-20, -20}, {20, 20}}, rotation = 0), iconTransformation(origin = {-59, 41}, extent = {{-13, -13}, {13, 13}}, rotation = 0)));
-      //parameters
-      // ====== P4 =======
+      Modelica.Blocks.Interfaces.RealOutput RelLH = (b_LH_rel + k_LH_GR * fHp(GR_a + AgoR, T_LH_GR, n_LH_GR)) * LH_pit annotation(
+        Placement(visible = true, transformation(origin = {68, 32}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {70, 30}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+      Modelica.Blocks.Interfaces.RealOutput RelFSH = (b_FSH_rel + k_FSH_GR * fHp(GR_a + AgoR, T_FSH_GR, n_FSH_GR)) * FSH_pit annotation(
+        Placement(visible = true, transformation(origin = {78, 42}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {70, -30}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    
+      //====== Parameters ======
+      // ====== P4 ======
       parameter Real T_LH_P4 = 2.371 "ng/mL";
       parameter Real n_LH_P4 = 1 "-";
-      // ====== E2 =======
+      // ====== E2 ======
       parameter Real T_LH_E2 = 132.2 "pg/mL";
       parameter Real n_LH_E2 = 10 "-";
       // ====== GR =======
       parameter Real k_LH_GR = 0.1904 "1/d";
       parameter Real T_LH_GR = 0.0003 "nmol/L ";
       parameter Real n_LH_GR = 5 "-";
-      // ===== AGO-R ====
+      // ====== AGO-R ======
       Real AgoR = 0;
-      // ====== LH =======
-      //pituitary LH
+      // ====== LH ======
       parameter Real b_LH_syn = 7309.92 "IU/d";
       parameter Real k_LH_E2 = 7309.92 "IU/d";
       parameter Real b_LH_rel = 0.00476 "1/d";
+     
+      Real LH_pit(start = 3.141e5) "IU";
+      Real SynLH = (b_LH_syn + k_LH_E2 * fHp(E2, T_LH_E2, n_LH_E2)) * fHm(P4, T_LH_P4, n_LH_P4);
+     
+      // ====== FSH ======
       parameter Real T_FSH_freq = 12.8 "1/d";
       parameter Real n_FSH_freq = 5 "-";
       parameter Real T_FSH_GR = 0.0003 "nmol/L";
       parameter Real n_FSH_GR = 2 "-";
       parameter Real k_FSH_Ih = 2.213e+4 "IU/d";
+      parameter Real b_FSH_rel = 0.057 "1/d";
+      parameter Real k_FSH_GR = 0.272 "1/d";
+      Real FSH_pit(start = 6.928e+4) "IU";
+      Real SynFSH = k_FSH_Ih * fHm(freq, T_FSH_freq, n_FSH_freq) / (1 + (IhAe / T_IhA) ^ n_IhA + (IhB / T_IhB) ^ n_IhB);
+      
+      // ====== Inhibins ======
       parameter Real n_IhA = 5 "-";
       parameter Real n_IhB = 2 "-";
       parameter Real T_IhA = 95.81 "IU/mL";
       parameter Real T_IhB = 70 "pg/mL";
-      parameter Real b_FSH_rel = 0.057 "1/d";
-      parameter Real k_FSH_GR = 0.272 "1/d";
-      //functions
-      //LH
-      Real LH_pit(start = 3.141e5) "IU";
-      Real SynLH = (b_LH_syn + k_LH_E2 * fHp(E2, T_LH_E2, n_LH_E2)) * fHm(P4, T_LH_P4, n_LH_P4);
-      // Real RelLH = (b_LH_rel + k_LH_GR *  fHp(GR_a + AgoR,T_LH_GR,n_LH_GR)) * LH_pit;
-      //FSH
-      Real FSH_pit(start = 6.928e+4) "IU";
-      Real SynFSH = k_FSH_Ih * fHm(freq, T_FSH_freq, n_FSH_freq) / (1 + (IhAe / T_IhA) ^ n_IhA + (IhB / T_IhB) ^ n_IhB);
-      // Real RelFSH = (b_FSH_rel + k_FSH_GR * fHp((GR_a + AgoR), T_FSH_GR,n_FSH_GR)) * FSH_pit;
-      //=============
-      Modelica.Blocks.Interfaces.RealOutput RelLH = (b_LH_rel + k_LH_GR * fHp(GR_a + AgoR, T_LH_GR, n_LH_GR)) * LH_pit annotation(
-        Placement(visible = true, transformation(origin = {68, 32}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {70, 30}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-      Modelica.Blocks.Interfaces.RealOutput RelFSH = (b_FSH_rel + k_FSH_GR * fHp(GR_a + AgoR, T_FSH_GR, n_FSH_GR)) * FSH_pit annotation(
-        Placement(visible = true, transformation(origin = {78, 42}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {70, -30}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+      
     equation
-//LH Pitatory gland
+  //LH Pitatory gland
       der(LH_pit) = SynLH - RelLH;
-//FSH Pitatory gland
+  //FSH Pitatory gland
       der(FSH_pit) = SynFSH - RelFSH;
       annotation(
         Icon(graphics = {Polygon(origin = {7, 1}, fillColor = {56, 225, 56}, fillPattern = FillPattern.VerticalCylinder, points = {{-1, 99}, {-53, 77}, {-53, -81}, {-7, -101}, {53, -81}, {53, 77}, {53, 77}, {-3, 99}, {-3, 99}, {-3, 99}, {-1, 99}}), Text(origin = {9, 51}, lineColor = {255, 255, 255}, extent = {{-39, 23}, {39, -23}}, textString = "Pituitary")}, coordinateSystem(initialScale = 0.1)),
         Placement(visible = true, transformation(origin = {76, 52}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {70, -30}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     end GlandPit;
+
+
+
+
 
     //=============
     // parameter Real freq = 3.179;
@@ -258,7 +259,7 @@ package HormonalCycle
                  IhB*/
 
     model Ovaries
-      //eq28
+      //====== Input and Output ======
       Modelica.Blocks.Interfaces.RealOutput P4(start = 0.688) "ng/mL" annotation(
         Placement(visible = true, transformation(origin = {-84, -30}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {70, -60}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
       Modelica.Blocks.Interfaces.RealOutput E2(start = 30.94) "pg/mL" annotation(
@@ -277,19 +278,9 @@ package HormonalCycle
         Placement(visible = true, transformation(origin = {-42, 118}, extent = {{-20, -20}, {20, 20}}, rotation = 0), iconTransformation(origin = {-80, -38}, extent = {{-20, -20}, {20, 20}}, rotation = 0)));
       Modelica.Blocks.Interfaces.RealInput GR_a annotation(
         Placement(visible = true, transformation(origin = {-32, 128}, extent = {{-20, -20}, {20, 20}}, rotation = 0), iconTransformation(origin = {-80, -78}, extent = {{-20, -20}, {20, 20}}, rotation = 0)));
-      /* //input values of functions from other blocks
-              input Real FSH_blood;
-              //INPUT
-              input Real FSH_R;
-              //INPUT
-              input Real LH_R;
-              //Input
-              input Real GR_a;
-              input Real LH_blood;
-              //eq24
-              //input Real P4;//INPUT//comment if I keep E2,P4 defined here*/
+    
       //development of follicle and corpus luteum
-      //parameters
+      //====== Parameters ======
       parameter Real k_s = 0.219 "1/d";
       //EQ11
       parameter Real T_s_FSH = 3 "IU/L";
@@ -336,7 +327,7 @@ package HormonalCycle
       parameter Real k_Lut3_Lut2 = 0.7567 "1/d";
       parameter Real k_Lut4_Lut3 = 0.610 "1/d";
       parameter Real k_Lut4_cl = 0.543 "1/d";
-      //=====E2,P4 and inhibins
+      //====== E2,P4 and inhibins ======
       parameter Real b_E2 = 51.558 "pg/(mL*d)";
       //eq24
       parameter Real k_E2_AF2 = 2.0945 "pg/(mL*d*[AF2])";
@@ -365,7 +356,7 @@ package HormonalCycle
       parameter Real k_IhB_Sc2 = 134240.2 "pg/(mL*d*[AF3])";
       parameter Real k_IhB_cl = 172.45 "1/d";
       parameter Real k_IhAe_cl = 0.199 "1/d";
-      //functions
+    
       Real s(start = 0.417) "-";
       //EQ11
       Real AF1(start = 2.811) "[Foll]";
@@ -391,16 +382,9 @@ package HormonalCycle
       Real Lut3(start = 4.853e-4) "[Foll]";
       //eq22
       Real Lut4(start = 3.103e-3) "[Foll]";
-      //eq23
-      //=====E2,P4 and inhibins
-      //  Real E2(start = 30.94) "pg/mL";
-      //Real P4(start = 0.688) "ng/mL";
       //eq25
       Real IhA(start = 0.637) "IU/mL";
-      //eq26
-      //  Real IhB(start = 72.17) "pg/mL";
-      //eq27
-      // Real IhAe(start = 52.43) "IU/mL";
+     
     equation
 //eq11
       der(s) = k_s * fHp(FSH_blood, T_s_FSH, n_s_FSH) - k_s_cl * fHp(P4, T_s_P4, n_s_P4) * s;
@@ -444,17 +428,41 @@ package HormonalCycle
         Icon(graphics = {Ellipse(origin = {66, 63}, extent = {{0, -1}, {0, 1}}, endAngle = 360), Ellipse(origin = {-1, -1}, fillColor = {226, 182, 152}, fillPattern = FillPattern.HorizontalCylinder, extent = {{59, 99}, {-59, -99}}, endAngle = 360), Text(origin = {2, -3}, extent = {{-42, 27}, {42, -27}}, textString = "Ovaries")}));
     end Ovaries;
 
+    
+    //====Dismissed or repet. formulas
+  /* //input values of functions from other blocks
+              input Real FSH_blood;
+              //INPUT
+              input Real FSH_R;
+              //INPUT
+              input Real LH_R;
+              //Input
+              input Real GR_a;
+              input Real LH_blood;
+              //eq24
+              //input Real P4;//INPUT//comment if I keep E2,P4 defined here*/
+              
+               //eq23
+      //=====E2,P4 and inhibins
+      //  Real E2(start = 30.94) "pg/mL";
+      //Real P4(start = 0.688) "ng/mL";
+      
+       //eq26
+      //  Real IhB(start = 72.17) "pg/mL";
+      //eq27
+      // Real IhAe(start = 52.43) "IU/mL";
+
     model GnRH
-      //Input
+      //====== Input and Output ======
       Modelica.Blocks.Interfaces.RealInput P4 annotation(
         Placement(visible = true, transformation(origin = {-88, 48}, extent = {{-20, -20}, {20, 20}}, rotation = 0), iconTransformation(origin = {-80, 40}, extent = {{-20, -20}, {20, 20}}, rotation = 0)));
       Modelica.Blocks.Interfaces.RealInput E2 annotation(
         Placement(visible = true, transformation(origin = {-82, -30}, extent = {{-20, -20}, {20, 20}}, rotation = 0), iconTransformation(origin = {-80, -40}, extent = {{-20, -20}, {20, 20}}, rotation = 0)));
       Modelica.Blocks.Interfaces.RealOutput GR_a(start = 8.618e-5) "nmol/L" annotation(
         Placement(visible = true, transformation(origin = {78, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {72, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-    Modelica.Blocks.Interfaces.RealOutput freq annotation(
+    Modelica.Blocks.Interfaces.RealOutput freq(start=3.179)"1/d" annotation(
         Placement(visible = true, transformation(origin = {68, 42}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {72, 50}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-      //parameters
+      //====== Parameters ======
       parameter Real T_freq_P4 = 1.2 "ng/mL";
       parameter Real n_freq_P4 = 2 "-";
       parameter Real m_freq_E2 = 1 "-";
@@ -473,32 +481,39 @@ package HormonalCycle
       parameter Real k_RG_recy = 32.218 "1/d";
       parameter Real k_GRi_diss = 32.218 "1/d";
       parameter Real k_RGi_syn = 8.949e-5 "nmol/(L*d)";
-      //#114
       parameter Real k_RGi_degr = 0.0895 "1/d";
       parameter Real k_GR_inact = 32.218 "1/d";
       parameter Real k_GR_act = 3.222 "1/d";
       parameter Real k_GRi_degr = 0.00895 "1/d";
-      //functions
-      //Real freq;
-      //do we really need the (start=3.179)
       Real mass;
-      //(start=0.001);
       Real G(start = 1.976e-2) "nmol/L";
       Real R_Ga(start = 9.121e-3) "nmol/L";
       Real R_Gi(start = 9.893e-4) "nmol/L";
-      //Real GR_a(start=8.618e-5)"nmol/L";
       Real GR_i(start = 7.768e-5) "nmol/L";
     
+    
     equation
+    
       freq = f0 * fHm(P4, T_freq_P4, n_freq_P4) * (1 + m_freq_E2 * fHp(E2, T_freq_E2, n_freq_E2));
-      mass = a0 * (fHm(E2, T_mass1_E2, n_mass1_E2) * fHm(E2, T_mass2_E2, n_mass2_E2));
+      mass = a0 * (fHp(E2, T_mass1_E2, n_mass1_E2)+ fHm(E2, T_mass2_E2, n_mass2_E2));
       der(G) = mass * freq - k_G_on * G * R_Ga + k_G_off * GR_a - k_G_degr * G;
       der(R_Ga) = k_G_off * GR_a - k_G_on * G * R_Ga - k_RG_inter * R_Ga + k_RG_recy * R_Gi;
       der(R_Gi) = k_GRi_diss * GR_i + k_RG_inter * R_Ga - k_RG_recy * R_Gi + k_RGi_syn - k_RGi_degr * R_Gi;
       der(GR_a) = k_G_on * G * R_Ga - k_G_off * GR_a - k_GR_inact * GR_a + k_GR_act * GR_i;
       der(GR_i) = k_GR_inact * GR_a - k_GR_act * GR_i - k_GRi_degr * GR_i - k_GRi_diss * GR_i;
-//check those later (for drugs)
-/*
+    
+      annotation(
+        Icon(graphics = {Rectangle(origin = {1, 0}, fillColor = {231, 205, 186}, fillPattern = FillPattern.VerticalCylinder, extent = {{-61, 80}, {61, -80}}), Text(origin = {0, 47}, lineColor = {255, 255, 255}, fillColor = {255, 255, 255}, extent = {{-40, 23}, {40, -23}}, textString = "GnRH")}));
+    end GnRH;
+
+    
+    
+    
+    
+    
+    //====Additional part for antagonist and agonist
+//Use for case of medications. Separetly defined parameters
+    /*
     //eq34//der(Ago_d) = - k_Ago_A * Agod;
     //der(Ago_c) = k_Ago_A * Ago_d * F_Ago / V_c - cl_Ago * Ago_c;
     //der(AgoR_a) = k_Ago_on * SF_Ago * R_Ga * Ago_c - k_Ago_off * AgoR_a + k_AgoR_act * AgoR_i - k_AgoR_inact * R_Ga * AgoR_a;
@@ -514,51 +529,65 @@ package HormonalCycle
     //der(R_Ga) = k_G_off * GR - k_G_on * G * R_Ga - k_RG_inter * R_Ga + k_RG_recy * R_Gi - k_Ant_on * SF_Ant * Ant_c * R_Ga + k_Ant_off * AntR;
     
     */
-      annotation(
-        Icon(graphics = {Rectangle(origin = {1, 0}, fillColor = {231, 205, 186}, fillPattern = FillPattern.VerticalCylinder, extent = {{-61, 80}, {61, -80}}), Text(origin = {0, 47}, lineColor = {255, 255, 255}, fillColor = {255, 255, 255}, extent = {{-40, 23}, {40, -23}}, textString = "GnRH")}));
-    end GnRH;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     model Model
       HormonalCycle.EquationBased.GlandPit glandPit1 annotation(
-        Placement(visible = true, transformation(origin = {-7, -5}, extent = {{-37, -37}, {37, 37}}, rotation = 0)));
+        Placement(visible = true, transformation(origin = {-27,-7}, extent = {{-37, -37}, {37, 37}}, rotation = 0)));
       HormonalCycle.EquationBased.Ovaries ovaries1 annotation(
-        Placement(visible = true, transformation(origin = {-10, -66}, extent = {{22, -22}, {-22, 22}}, rotation = 0)));
+        Placement(visible = true, transformation(origin = {-30, -68}, extent = {{22, -22}, {-22, 22}}, rotation = 0)));
       HormonalCycle.EquationBased.Blood blood1 annotation(
-        Placement(visible = true, transformation(origin = {60, -2}, extent = {{-24, -24}, {24, 24}}, rotation = 0)));
+        Placement(visible = true, transformation(origin = {40, -4}, extent = {{-24, -24}, {24, 24}}, rotation = 0)));
       HormonalCycle.EquationBased.GnRH gnRH1 annotation(
-        Placement(visible = true, transformation(origin = {-9, 65}, extent = {{31, -31}, {-31, 31}}, rotation = 180)));
+        Placement(visible = true, transformation(origin = {-29, 67}, extent = {{31, -31}, {-31, 31}}, rotation = 180)));
     equation
-      connect(ovaries1.IhAe, glandPit1.IhAe) annotation(
-        Line(points = {{-26, -62}, {-46, -62}, {-46, -10}, {-32, -10}, {-32, -12}, {-28, -12}}, color = {0, 0, 127}));
-      connect(ovaries1.P4, glandPit1.P4) annotation(
-        Line(points = {{-26, -80}, {-54, -80}, {-54, 0}, {-28, 0}, {-28, 0}}, color = {0, 0, 127}));
-      connect(ovaries1.E2, glandPit1.E2) annotation(
-        Line(points = {{-26, -70}, {-62, -70}, {-62, 20}, {-28, 20}, {-28, 20}}, color = {0, 0, 127}));
-      connect(gnRH1.freq, glandPit1.freq) annotation(
-        Line(points = {{14, 50}, {-30, 50}, {-30, 10}, {-28, 10}}, color = {0, 0, 127}));
-      connect(gnRH1.GR_a, glandPit1.GR_a) annotation(
-        Line(points = {{14, 66}, {-68, 66}, {-68, -22}, {-28, -22}, {-28, -22}}, color = {0, 0, 127}));
-      connect(blood1.FSH_R, ovaries1.FSH_R) annotation(
-        Line(points = {{82, -24}, {102, -24}, {102, -74}, {8, -74}, {8, -74}}, color = {0, 0, 127}));
-      connect(ovaries1.FSH_blood, blood1.FSH_blood) annotation(
-        Line(points = {{8, -66}, {108, -66}, {108, -8}, {82, -8}, {82, -10}}, color = {0, 0, 127}));
-      connect(blood1.LH_R, ovaries1.LH_R) annotation(
-        Line(points = {{82, 4}, {112, 4}, {112, -56}, {8, -56}, {8, -58}}, color = {0, 0, 127}));
-      connect(ovaries1.LH_blood, blood1.LH_blood) annotation(
-        Line(points = {{8, -48}, {118, -48}, {118, 20}, {82, 20}, {82, 20}}, color = {0, 0, 127}));
-      connect(glandPit1.RelLH, blood1.RelLH) annotation(
-        Line(points = {{19, 6}, {38, 6}, {38, 12}, {40, 12}}, color = {0, 0, 127}));
-      connect(glandPit1.RelFSH, blood1.RelFSH) annotation(
-        Line(points = {{19, -16}, {40, -16}}, color = {0, 0, 127}));
-      connect(ovaries1.IhB, glandPit1.IhB) annotation(
-        Line(points = {{-26, -52}, {-40, -52}, {-40, -31}, {-29, -31}}, color = {0, 0, 127}));
-      connect(ovaries1.E2, gnRH1.E2) annotation(
-        Line(points = {{-26, -70}, {-72, -70}, {-72, 78}, {-34, 78}, {-34, 78}}, color = {0, 0, 127}));
-      connect(gnRH1.P4, ovaries1.P4) annotation(
-        Line(points = {{-34, 52}, {-84, 52}, {-84, -78}, {-26, -78}, {-26, -80}}, color = {0, 0, 127}));
-      connect(gnRH1.GR_a, ovaries1.GR_a) annotation(
-        Line(points = {{14, 66}, {124, 66}, {124, -84}, {8, -84}, {8, -84}}, color = {0, 0, 127}));
+    connect(gnRH1.freq, glandPit1.freq) annotation(
+        Line(points = {{-7, 51}, {-50.68, 51}, {-50.68, 7.5}, {-48.68, 7.5}}, color = {0, 0, 127}));
+    connect(gnRH1.GR_a, glandPit1.GR_a) annotation(
+        Line(points = {{-7, 67}, {-88.68, 67}, {-88.68, -23}, {-48.68, -23}, {-48.68, -25}}, color = {0, 0, 127}));
+    connect(ovaries1.E2, gnRH1.E2) annotation(
+        Line(points = {{-45.4, -72.4}, {-91.4, -72.4}, {-91.4, 79}, {-54, 79}}, color = {0, 0, 127}));
+    connect(gnRH1.P4, ovaries1.P4) annotation(
+        Line(points = {{-54, 55}, {-103.8, 55}, {-103.8, -79.4}, {-45.8, -79.4}, {-45.8, -81.4}}, color = {0, 0, 127}));
+    connect(gnRH1.GR_a, ovaries1.GR_a) annotation(
+        Line(points = {{-7, 67}, {103.32, 67}, {103.32, -85}, {-12.68, -85}, {-12.68, -87}}, color = {0, 0, 127}));
+    connect(blood1.FSH_R, ovaries1.FSH_R) annotation(
+        Line(points = {{61.6, -25.12}, {71.6, -25.12}, {71.6, -25.12}, {81.6, -25.12}, {81.6, -75.12}, {-12.4, -75.12}, {-12.4, -75.12}, {-12.4, -75.12}, {-12.4, -75.12}}, color = {0, 0, 127}));
+    connect(ovaries1.FSH_blood, blood1.FSH_blood) annotation(
+        Line(points = {{-12.4, -68}, {87.6, -68}, {87.6, -10}, {61.6, -10}, {61.6, -11}, {61.6, -11}, {61.6, -12}}, color = {0, 0, 127}));
+    connect(blood1.LH_R, ovaries1.LH_R) annotation(
+        Line(points = {{61.6, 2.72}, {76.6, 2.72}, {76.6, 2.72}, {91.6, 2.72}, {91.6, -57.28}, {-12.4, -57.28}, {-12.4, -58.28}, {-12.4, -58.28}, {-12.4, -59.28}}, color = {0, 0, 127}));
+    connect(ovaries1.LH_blood, blood1.LH_blood) annotation(
+        Line(points = {{-12.4, -50.4}, {41.6, -50.4}, {41.6, -50.4}, {97.6, -50.4}, {97.6, 17.6}, {61.6, 17.6}, {61.6, 17.6}, {61.6, 17.6}, {61.6, 17.6}}, color = {0, 0, 127}));
+    connect(glandPit1.RelLH, blood1.RelLH) annotation(
+        Line(points = {{-1.1, 4.1}, {8.4, 4.1}, {8.4, 4.1}, {17.9, 4.1}, {17.9, 10.1}, {18.9, 10.1}, {18.9, 10.1}, {19.9, 10.1}}, color = {0, 0, 127}));
+    connect(glandPit1.RelFSH, blood1.RelFSH) annotation(
+        Line(points = {{-1.1, -18.1}, {19.9, -18.1}}, color = {0, 0, 127}));
+    connect(ovaries1.IhAe, glandPit1.IhAe) annotation(
+        Line(points = {{-45.4, -63.6}, {-56.4, -63.6}, {-56.4, -63.6}, {-65.4, -63.6}, {-65.4, -11.6}, {-51.4, -11.6}, {-51.4, -13.6}, {-50.4, -13.6}, {-50.4, -13.6}, {-47.4, -13.6}}, color = {0, 0, 127}));
+    connect(ovaries1.P4, glandPit1.P4) annotation(
+        Line(points = {{-45.4, -81.2}, {-59.4, -81.2}, {-59.4, -81.2}, {-73.4, -81.2}, {-73.4, -1.2}, {-47.4, -1.2}, {-47.4, -1.2}, {-47.4, -1.2}, {-47.4, -1.2}}, color = {0, 0, 127}));
+    connect(ovaries1.E2, glandPit1.E2) annotation(
+        Line(points = {{-45.4, -72.4}, {-63.4, -72.4}, {-63.4, -72.4}, {-81.4, -72.4}, {-81.4, 17.6}, {-47.4, 17.6}, {-47.4, 17.6}, {-47.4, 17.6}, {-47.4, 17.6}}, color = {0, 0, 127}));
+    connect(ovaries1.IhB, glandPit1.IhB) annotation(
+        Line(points = {{-45.4, -54.8}, {-51.4, -54.8}, {-51.4, -54.8}, {-59.4, -54.8}, {-59.4, -33.8}, {-54.9, -33.8}, {-54.9, -33.8}, {-48.4, -33.8}}, color = {0, 0, 127}));
     end Model;
   end EquationBased;
 
